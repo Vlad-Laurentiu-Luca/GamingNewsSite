@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gaming News Pro Hub</title>
+<style>
+  /* Import fonturile Orbitron și Open Sans de pe Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Open+Sans&display=swap');
+
+  /* Reset și box-sizing global pentru a evita problemele cu padding și margin */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  /* Stilizare globală pentru body și html */
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Open Sans', sans-serif;
+    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+    color: #e0e6e9;
+    overflow-x: hidden;
+    scroll-behavior: smooth; /* Animație lină la scroll */
+  }
+
+  /* Variabile CSS pentru culori reutilizabile */
+  :root {
+    --primary-color: #00ffa8;
+    --secondary-color: #0fffc0;
+    --bg-color: #121a21;
+    --card-bg: #1e2a35;
+    --shadow-color: rgba(0, 255, 168, 0.7);
+    --text-color: #cde5d7;
+  }
+
+  /* Structura principală a paginii cu grid CSS */
+  #app {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* Sidebar fix și main flexibil */
+    grid-template-rows: 60px 1fr 40px; /* Header, conținut, footer */
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    height: 100vh;
+    background-color: var(--bg-color);
+  }
+
+  /* Stilizare header (bara de sus) */
+  header {
+    grid-area: header;
+    background: linear-gradient(90deg, #004d40, #00796b);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.9rem;
+    text-shadow: 0 0 8px var(--primary-color), 0 0 20px var(--primary-color);
+    position: fixed; /* Fixat sus pe pagină */
+    width: 100%;
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Logo din header */
+  header .logo {
+    flex: 1; /* Ocupă tot spațiul disponibil */
+  }
+
+  /* Select pentru sortare */
+  #sortSelect {
+    background: var(--card-bg);
+    border: 2px solid var(--primary-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 0.3rem 0.7rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 1rem;
+  }
+
+  /* Sidebar lateral cu filtre */
+  aside#sidebar {
+    grid-area: sidebar;
+    background: var(--card-bg);
+    box-shadow: inset 3px 0 10px var(--shadow-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    overflow-y: auto; /* Scroll vertical dacă e conținut mai mare */
+    padding-top: 80px; /* Pentru a nu fi sub header fix */
+  }
+
+  /* Titlu în sidebar */
+  aside#sidebar h2 {
+    margin: 0 0 0.6rem 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    text-shadow: 0 0 6px var(--primary-color);
+  }
+
+  /* Grupurile de filtre */
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Etichete pentru filtre */
+  .filter-group label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--secondary-color);
+  }
+
+  /* Select și input pentru căutare în filtre */
+  .filter-group select,
+  .filter-group input[type="search"] {
+    padding: 0.45rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 2px solid var(--primary-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  /* Containerul principal unde vor apărea știrile */
+  main#newsContainer {
+    grid-area: main;
+    padding: 80px 1.5rem 1.5rem 1.5rem; /* Sus pentru a evita headerul fix */
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); /* coloane responsive */
+    gap: 1.6rem;
+  }
+
+  /* Articol știre individual */
+  article.news-article {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 0 10px var(--shadow-color), inset 0 0 15px var(--shadow-color);
+    color: var(--text-color);
+    padding: 1.4rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  /* Bara colorată animată de sus a fiecărei știri */
+  article.news-article::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 5px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(270deg, #00ffa8, #00a8ff, #ff00a8, #a800ff, #00ffa8);
+    background-size: 1000% 100%;
+    animation: rainbowSlide 15s linear infinite; /* animație infinită */
+  }
+
+  /* Definirea animației pentru bara colorată */
+  @keyframes rainbowSlide {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  /* Stil media (video / iframe) din articole */
+  article.news-article iframe,
+  article.news-article video {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    margin-bottom: 0.8rem;
+    object-fit: cover;
+    box-shadow: 0 0 12px var(--primary-color);
+  }
+
+  /* Titlu știre */
+  article.news-article h3 {
+    margin: 0 0 0.4rem 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+  }
+
+  /* Descriere știre */
+  article.news-article p {
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
+  }
+
+  /* Data publicării */
+  article.news-article time {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* Footer-ul paginii */
+  footer {
+    grid-area: footer;
+    background: linear-gradient(90deg, #004d40, #00796b);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-shadow: 0 0 8px var(--primary-color), 0 0 20px var(--primary-color);
+    box-shadow: inset 0 5px 10px var(--shadow-color);
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">Gaming News Site</div>
+    <!-- Select pentru sortarea știrilor după dată -->
+    <select id="sortSelect" aria-label="Sortează știrile">
+      <option value="latest" selected>Cele mai recente</option>
+      <option value="oldest">Cele mai vechi</option>
+    </select>
+  </header>
+
+  <aside id="sidebar">
+    <div class="filter-group">
+      <!-- Câmp pentru căutarea știrilor -->
+      <label for="searchInput">Caută știri</label>
+      <input type="search" id="searchInput" placeholder="Ex: Cyberpunk, Halo..." />
+    </div>
+  </aside>
+
+  <!-- Container pentru afișarea știrilor -->
+  <main id="newsContainer" tabindex="0" aria-live="polite"></main>
+
+  <footer>
+    © 2025 Gaming News Site - Luca Vlad-Laurentiu
+  </footer>
+</div>
+
+<script>
+  // Array cu știrile disponibile
+  const news = [
+    {
+      title: "Cyberpunk 2077 lansează expansiunea 'Phantom Liberty'",
+      description: "CD Projekt Red a anunțat data oficială pentru următorul DLC major pentru Cyberpunk 2077, 'Phantom Liberty'.",
+      date: "2025-06-20T14:30:00",
+      video: "https://www.youtube.com/watch?v=kfX9n_G0N2Y"
+    },
+    {
+      title: "Halo Infinite primește un nou eveniment sezonier",
+      description: "Microsoft introduce evenimentul 'Spartan Fest' cu noi misiuni și skinuri exclusive.",
+      date: "2025-06-18T10:00:00",
+      video: "https://www.youtube.com/watch?v=43TkQRPIxzk"
+    },
+    {
+      title: "Sony confirmă PlayStation VR2 cu suport extins",
+      description: "Experiențele VR vor fi mult îmbunătățite cu noul hardware și actualizările software.",
+      date: "2025-06-15T12:00:00",
+      video: "https://www.youtube.com/watch?v=3ueP2SQeH-I"
+    },
+    {
+      title: "Noul update de World of Warcraft aduce zone noi",
+      description: "Blizzard adaugă mai multe regiuni explorable și quest-uri captivante.",
+      date: "2025-06-10T08:30:00",
+      video: "https://www.youtube.com/watch?v=Fii3Fb9lfmk"
+    }
+  ];
+
+  // Referințe către elementele din DOM
+  const newsContainer = document.getElementById('newsContainer');
+  const searchInput = document.getElementById('searchInput');
+  const sortSelect = document.getElementById('sortSelect');
+
+  /**
+   * Formatează data ISO într-un format mai prietenos, în limba română
+   * @param {string} isoDate - Data în format ISO 8601
+   * @returns {string} Data formatată
+   */
+  function formatDate(isoDate) {
+    const d = new Date(isoDate);
+    return d.toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  /**
+   * Randează lista de știri în containerul principal
+   * @param {Array} filteredNews - Array cu știri filtrate și sortate
+   */
+  function renderNews(filteredNews) {
+    newsContainer.innerHTML = ""; // Resetăm conținutul anterior
+
+    // Dacă nu există știri după filtrare, afișăm mesaj
+    if (filteredNews.length === 0) {
+      newsContainer.innerHTML = "<p style='color:var(--secondary-color); font-weight:700;'>Nicio știre găsită.</p>";
+      return;
+    }
+
+    // Pentru fiecare știre creăm un articol nou
+    filteredNews.forEach(({ title, description, date, video }) => {
+      const article = document.createElement("article");
+      article.className = "news-article";
+      article.tabIndex = 0; // Permite navigarea cu tabul
+
+      let mediaElement;
+      // Dacă video este de pe YouTube, creăm iframe cu embed
+      if (video.includes("youtube.com") || video.includes("youtu.be")) {
+        // Extragem ID-ul video-ului din URL
+        const videoId = video.includes("watch?v=")
+          ? video.split("watch?v=")[1].split("&")[0]
+          : video.split("/").pop();
+
+        mediaElement = document.createElement("iframe");
+        mediaElement.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        mediaElement.allow = "autoplay; encrypted-media";
+        mediaElement.allowFullscreen = true;
+      } else {
+        // Dacă video este un fișier video local sau alt tip, folosim tag video
+        mediaElement = document.createElement("video");
+        mediaElement.src = video;
+        mediaElement.muted = true;
+        mediaElement.autoplay = true;
+        mediaElement.loop = true;
+        mediaElement.playsInline = true;
+        mediaElement.controls = false;
+      }
+
+      // Adăugăm media în articol
+      article.appendChild(mediaElement);
+
+      // Titlul știrii
+      const h3 = document.createElement("h3");
+      h3.textContent = title;
+
+      // Descrierea știrii
+      const p = document.createElement("p");
+      p.textContent = description;
+
+      // Data știrii formatată
+      const timeEl = document.createElement("time");
+      timeEl.dateTime = date;
+      timeEl.textContent = formatDate(date);
+
+      // Adăugăm elementele în articol
+      article.appendChild(h3);
+      article.appendChild(p);
+      article.appendChild(timeEl);
+
+      // Adăugăm articolul în containerul principal
+      newsContainer.appendChild(article);
+    });
+  }
+
+  /**
+   * Filtrează și sortează știrile după inputul utilizatorului și opțiunea selectată
+   */
+  function filterAndSortNews() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    // Filtrare știri după titlu sau descriere care conțin termenul căutat
+    let filtered = news.filter(n =>
+      n.title.toLowerCase().includes(searchTerm) ||
+      n.description.toLowerCase().includes(searchTerm)
+    );
+
+    // Sortare după data publicării, ascendent sau descendent
+    if (sortSelect.value === 'latest') {
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else {
+      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    // Afișăm știrile filtrate și sortate
+    renderNews(filtered);
+  }
+
+  // Ascultăm modificările din câmpul de căutare și selectul de sortare
+  searchInput.addEventListener('input', filterAndSortNews);
+  sortSelect.addEventListener('change', filterAndSortNews);
+
+  // Inițial afișăm toate știrile sortate implicit după cele mai recente
+  filterAndSortNews();
+</script>
+</body>
+</html>
